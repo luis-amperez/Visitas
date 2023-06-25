@@ -13,7 +13,9 @@ class Visita extends Model
     protected $fillable = [
         'correo_cliente',
         'nombre_cliente',
+        'id_cliente',
         'nombre_tecnico',
+        'id_tecnico',
         'fecha_inicio',
         'fecha_final',
 

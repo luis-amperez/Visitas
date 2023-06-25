@@ -22,7 +22,19 @@ class VisitaController extends Controller
 
 
      if (Auth::User()->can('listarVisitas')){
-          $visitas = Visita::all();
+      
+      $visitas = Visita::query();
+      $visitas->select("visitas.id", "visitas.correo_cliente", "cl.nombre as nombre_cliente", "us.name as nombre_tecnico", "visitas.fecha_inicio", "visitas.fecha_final");
+      $visitas->join('users as us','us.id','visitas.id_tecnico');
+      $visitas->join('clientes as cl','cl.id','visitas.id_cliente');
+      
+
+
+      if(Auth::User()->hasRole('Tecnico')){
+
+        $visitas->where('us.id',Auth::User()->id);
+      }
+          $visitas = $visitas->get();
           $response["status"] = 200;
           $response["msg"] = 'Exito';
           $response['data'] = $visitas;
@@ -44,15 +56,15 @@ class VisitaController extends Controller
     $response["status"] = 1;
     $response["msg"] = '';
     $correo_cliente = $request->correo_cliente;
-    $nombre_cliente = $request->nombre_cliente;
-    $nombre_tecnico = $request->nombre_tecnico;
+    $id_cliente = $request->id_cliente;
+    $id_tecnico = $request->id_tecnico;
     $fecha_inicio = $request->fecha_inicio;
     $fecha_final = $request->fecha_final;
 
 if(Auth::User()->can('listarVisitas')){
     DB::connection('mysql')->beginTransaction();
     try {
-       Visita::create(['correo_cliente' => $correo_cliente, 'nombre_cliente' => $nombre_cliente, 'nombre_tecnico' => $nombre_tecnico, 'fecha_inicio' => $fecha_inicio, 'fecha_final' => $fecha_final]);
+       Visita::create(['correo_cliente' => $correo_cliente, 'id_cliente' => $id_cliente, 'id_tecnico' => $id_tecnico, 'fecha_inicio' => $fecha_inicio, 'fecha_final' => $fecha_final]);
         DB::connection('mysql')->commit();
         $response["status"]  = 200;
         $response["msg"] = 'Visita creada con exito';
