@@ -68,7 +68,19 @@ if(Auth::User()->can('listarVisitas')){
         DB::connection('mysql')->commit();
         $response["status"]  = 200;
         $response["msg"] = 'Visita creada con exito';
-         $visitas = Visita::all();
+        // $visitas = Visita::all();
+         $visitas = Visita::query();
+        $visitas->select("visitas.id", "visitas.correo_cliente", "cl.nombre as nombre_cliente", "us.name as nombre_tecnico", "visitas.fecha_inicio", "visitas.fecha_final");
+        $visitas->join('users as us','us.id','visitas.id_tecnico');
+        $visitas->join('clientes as cl','cl.id','visitas.id_cliente');
+      
+
+
+      if(Auth::User()->hasRole('Tecnico')){
+
+        $visitas->where('us.id',Auth::User()->id);
+      }
+          $visitas = $visitas->get();
          $response['data'] = $visitas;
         return response()->json($response, 200);
     } catch (\Throwable $th) {
@@ -107,7 +119,19 @@ if(Auth::User()->can('listarVisitas')){
           DB::connection('mysql')->commit();
           $response["status"]  = 200;
           $response["msg"] = 'Visita eliminada exitosamente';
-           $visitas = visita::all();
+           //$visitas = visita::all();
+           $visitas = Visita::query();
+          $visitas->select("visitas.id", "visitas.correo_cliente", "cl.nombre as nombre_cliente", "us.name as nombre_tecnico", "visitas.fecha_inicio", "visitas.fecha_final");
+          $visitas->join('users as us','us.id','visitas.id_tecnico');
+          $visitas->join('clientes as cl','cl.id','visitas.id_cliente');
+          
+
+
+      if(Auth::User()->hasRole('Tecnico')){
+
+        $visitas->where('us.id',Auth::User()->id);
+      }
+          $visitas = $visitas->get();
            $response['data'] = $visitas;
           return response()->json($response, 200);
       }
